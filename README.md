@@ -39,6 +39,7 @@ or even worse, with the logic still inside the model
 There are 2 things about this I really do not like about this:
 1) The model itself needs to know what additional actions should happen when it is saved/deleted
 2) This also means that the code for these additional actions needs to be in the same repository, possibly leading to a huge monolith.
+   
 This simple repo is there to change these 2 downpoints. 
 
 Using the Handler from this repo, the model hooks just look like:
