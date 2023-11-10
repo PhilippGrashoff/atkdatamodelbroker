@@ -6,6 +6,11 @@ use Atk4\Core\HookTrait;
 use Atk4\Data\Exception;
 use Atk4\Data\Model;
 
+
+/**
+ * Singleton Pattern implementation taken from
+ * https://github.com/DesignPatternsPHP/DesignPatternsPHP/blob/main/Creational/Singleton/Singleton.php
+ */
 final class ModelHandler
 {
 
@@ -48,7 +53,43 @@ final class ModelHandler
         throw new Exception("Cannot unserialize singleton");
     }
 
-    public function handleModelAfterSave(Model $entity): void {
+    public function handleModelBeforeSave(Model $entity): void
+    {
+        $this->hook(Model::HOOK_BEFORE_SAVE, [$entity]);
+    }
 
+    public function handleModelAfterSave(Model $entity): void
+    {
+        $this->hook(Model::HOOK_AFTER_SAVE, [$entity]);
+    }
+
+    public function handleModelBeforeInsert(Model $entity, array &$data): void
+    {
+        $this->hook(Model::HOOK_BEFORE_INSERT, [$entity, $data]);
+    }
+
+    public function handleModelAfterInsert(Model $entity, array &$data): void
+    {
+        $this->hook(Model::HOOK_AFTER_INSERT, [$entity, $data]);
+    }
+
+    public function handleModelBeforeUpdate(Model $entity, array &$data): void
+    {
+        $this->hook(Model::HOOK_BEFORE_UPDATE, [$entity, $data]);
+    }
+
+    public function handleModelAfterUpdate(Model $entity, array &$data): void
+    {
+        $this->hook(Model::HOOK_AFTER_UPDATE, [$entity, $data]);
+    }
+
+    public function handleModelBeforeDelete(Model $entity): void
+    {
+        $this->hook(Model::HOOK_BEFORE_DELETE, [$entity]);
+    }
+
+    public function handleModelAfterDelete(Model $entity): void
+    {
+        $this->hook(Model::HOOK_AFTER_DELETE, [$entity]);
     }
 }
