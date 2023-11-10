@@ -1,0 +1,24 @@
+{
+  "name": "philippgrashoff/secondarymodelforatk",
+  "description": "",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": "8.*",
+    "atk4/data": "5.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5.5",
+    "phpstan/phpstan": "1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhilippR\\Atk4\\ModelHandler\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PhilippR\\Atk4\\ModelHandler\\Tests\\": "tests"
+    }
+  }
+}
