@@ -30,6 +30,7 @@ The result is that:
 ## How to use it
 Inside a model, you just have to invoke the ModelHandler, in this example for the `afterSave` event. This "publishes" the event to the ModelHandler:
 ```php
+//inside Model::init()
 $this->onHook(
      Model::HOOK_AFTER_SAVE,
      function (self $tour, bool $isUpdate) {
