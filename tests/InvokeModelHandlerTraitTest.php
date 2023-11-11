@@ -22,4 +22,11 @@ class InvokeModelHandlerTraitTest extends TestCase
         self::expectExceptionMessage('The hook spot is already registered in ModelHandler');
         $this->callProtected($testModel, 'invokeModelHandler', Model::HOOK_BEFORE_UPDATE);
     }
+
+    public function testUnknownHookSpotThrowsException(): void
+    {
+        $testModel = new TestModel($this->db);
+        self::expectExceptionMessage('Unknown Hook spot');
+        $this->callProtected($testModel, 'invokeModelHandler', 'someUnknownSpot');
+    }
 }

@@ -39,24 +39,12 @@ trait InvokeModelHandlerTrait
             Model::HOOK_BEFORE_SAVE => $this->invokeSave(Model::HOOK_BEFORE_SAVE, 'beforeSave'),
             Model::HOOK_AFTER_SAVE => $this->invokeSave(Model::HOOK_AFTER_SAVE, 'afterSave'),
             Model::HOOK_BEFORE_INSERT => $this->invokeBeforeInsertOrUpdate(Model::HOOK_BEFORE_INSERT, 'beforeInsert'),
-            Model::HOOK_AFTER_INSERT => $this->invokeAfterInsertOrUpdateOrDelete(
-                Model::HOOK_AFTER_INSERT,
-                'afterInsert'
-            ),
+            Model::HOOK_AFTER_INSERT => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_AFTER_INSERT, 'afterInsert'),
             Model::HOOK_BEFORE_UPDATE => $this->invokeBeforeInsertOrUpdate(Model::HOOK_BEFORE_UPDATE, 'beforeUpdate'),
-            Model::HOOK_AFTER_UPDATE => $this->invokeAfterInsertOrUpdateOrDelete(
-                Model::HOOK_AFTER_UPDATE,
-                'afterUpdate'
-            ),
-            Model::HOOK_BEFORE_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(
-                Model::HOOK_BEFORE_DELETE,
-                'beforeDelete'
-            ),
-            Model::HOOK_AFTER_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(
-                Model::HOOK_AFTER_DELETE,
-                'afterDelete'
-            ),
-            default => throw new Exception('Unknown Hook spot ' . $hookSpot)
+            Model::HOOK_AFTER_UPDATE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_AFTER_UPDATE, 'afterUpdate'),
+            Model::HOOK_BEFORE_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_BEFORE_DELETE, 'beforeDelete'),
+            Model::HOOK_AFTER_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_AFTER_DELETE, 'afterDelete'),
+            default => throw (new Exception('Unknown Hook spot'))->addMoreInfo('hook spotz', $hookSpot)
         };
     }
 
