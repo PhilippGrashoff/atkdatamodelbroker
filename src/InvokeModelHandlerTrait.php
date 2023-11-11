@@ -11,6 +11,21 @@ use Atk4\Data\Model;
 trait InvokeModelHandlerTrait
 {
 
+    protected array $invokedHookSpots = [];
+
+    protected function assertHookSpotNotInvoked(string $hookSpot): void
+    {
+        if (in_array($hookSpot, $this->invokedHookSpots)) {
+            throw (new Exception('The hook spot is already registered in ModelHandler'))
+                ->addMoreInfo('hook spot', $hookSpot);
+        }
+    }
+
+    protected function addInvokedHookSpot(string $hookSpot): void
+    {
+        $this->invokedHookSpots[] = $hookSpot;
+    }
+
     /**
      * Call this function in Model::init() to invoke a handler on a save or delete spot
      *
@@ -21,96 +36,63 @@ trait InvokeModelHandlerTrait
     protected function invokeModelHandler(string $hookSpot): void
     {
         match ($hookSpot) {
-            Model::HOOK_BEFORE_SAVE => $this->invokeBeforeSave(),
-            Model::HOOK_AFTER_SAVE => $this->invokeAfterSave(),
-            Model::HOOK_BEFORE_INSERT => $this->invokeBeforeInsert(),
-            Model::HOOK_AFTER_INSERT => $this->invokeAfterInsert(),
-            Model::HOOK_BEFORE_UPDATE => $this->invokeBeforeUpdate(),
-            Model::HOOK_AFTER_UPDATE => $this->invokeAfterUpdate(),
-            Model::HOOK_BEFORE_DELETE => $this->invokeBeforeDelete(),
-            Model::HOOK_AFTER_DELETE => $this->invokeAfterDelete(),
+            Model::HOOK_BEFORE_SAVE => $this->invokeSave(Model::HOOK_BEFORE_SAVE, 'beforeSave'),
+            Model::HOOK_AFTER_SAVE => $this->invokeSave(Model::HOOK_AFTER_SAVE, 'afterSave'),
+            Model::HOOK_BEFORE_INSERT => $this->invokeBeforeInsertOrUpdate(Model::HOOK_BEFORE_INSERT, 'beforeInsert'),
+            Model::HOOK_AFTER_INSERT => $this->invokeAfterInsertOrUpdateOrDelete(
+                Model::HOOK_AFTER_INSERT,
+                'afterInsert'
+            ),
+            Model::HOOK_BEFORE_UPDATE => $this->invokeBeforeInsertOrUpdate(Model::HOOK_BEFORE_UPDATE, 'beforeUpdate'),
+            Model::HOOK_AFTER_UPDATE => $this->invokeAfterInsertOrUpdateOrDelete(
+                Model::HOOK_AFTER_UPDATE,
+                'afterUpdate'
+            ),
+            Model::HOOK_BEFORE_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(
+                Model::HOOK_BEFORE_DELETE,
+                'beforeDelete'
+            ),
+            Model::HOOK_AFTER_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(
+                Model::HOOK_AFTER_DELETE,
+                'afterDelete'
+            ),
             default => throw new Exception('Unknown Hook spot ' . $hookSpot)
         };
     }
 
-    protected function invokeBeforeSave(): void
+    private function invokeSave(string $hookSpot, string $functionName): void
     {
+        $this->assertHookSpotNotInvoked($hookSpot);
         $this->onHook(
-            Model::HOOK_BEFORE_SAVE,
-            function (self $entity, bool $isUpdate) {
-                ModelHandler::getInstance()->beforeSave($entity, $isUpdate);
+            $hookSpot,
+            function (Model $entity, bool $isUpdate) use ($functionName) {
+                ModelHandler::getInstance()->$functionName($entity, $isUpdate);
             }
         );
+        $this->addInvokedHookSpot($hookSpot);
     }
 
-    protected function invokeAfterSave(): void
+    private function invokeBeforeInsertOrUpdate(string $hookSpot, string $functionName): void
     {
+        $this->assertHookSpotNotInvoked($hookSpot);
         $this->onHook(
-            Model::HOOK_AFTER_SAVE,
-            function (self $entity, bool $isUpdate) {
-                ModelHandler::getInstance()->afterSave($entity, $isUpdate);
+            $hookSpot,
+            function (Model $entity, array &$data) use ($functionName) {
+                ModelHandler::getInstance()->$functionName($entity, $data);
             }
         );
+        $this->addInvokedHookSpot($hookSpot);
     }
 
-
-    protected function invokeBeforeInsert(): void
+    private function invokeAfterInsertOrUpdateOrDelete(string $hookSpot, string $functionName): void
     {
+        $this->assertHookSpotNotInvoked($hookSpot);
         $this->onHook(
-            Model::HOOK_BEFORE_INSERT,
-            function (self $entity, array &$data) {
-                ModelHandler::getInstance()->beforeInsert($entity, $data);
+            $hookSpot,
+            function (Model $entity) use ($functionName) {
+                ModelHandler::getInstance()->$functionName($entity);
             }
         );
-    }
-
-    protected function invokeAfterInsert(): void
-    {
-        $this->onHook(
-            Model::HOOK_AFTER_INSERT,
-            function (self $entity, array &$data) {
-                ModelHandler::getInstance()->afterInsert($entity, $data);
-            }
-        );
-    }
-
-    protected function invokeBeforeUpdate(): void
-    {
-        $this->onHook(
-            Model::HOOK_BEFORE_UPDATE,
-            function (self $entity, array &$data) {
-                ModelHandler::getInstance()->beforeUpdate($entity, $data);
-            }
-        );
-    }
-
-    protected function invokeAfterUpdate(): void
-    {
-        $this->onHook(
-            Model::HOOK_AFTER_UPDATE,
-            function (self $entity, array &$data) {
-                ModelHandler::getInstance()->afterUpdate($entity, $data);
-            }
-        );
-    }
-
-    protected function invokeBeforeDelete(): void
-    {
-        $this->onHook(
-            Model::HOOK_BEFORE_DELETE,
-            function (self $entity) {
-                ModelHandler::getInstance()->beforeDelete($entity);
-            }
-        );
-    }
-
-    protected function invokeAfterDelete(): void
-    {
-        $this->onHook(
-            Model::HOOK_AFTER_DELETE,
-            function (self $entity) {
-                ModelHandler::getInstance()->afterDelete($entity);
-            }
-        );
+        $this->addInvokedHookSpot($hookSpot);
     }
 }

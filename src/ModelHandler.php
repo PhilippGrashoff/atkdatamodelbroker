@@ -68,9 +68,9 @@ final class ModelHandler
         $this->hook(Model::HOOK_BEFORE_INSERT, [$entity, $data]);
     }
 
-    public function afterInsert(Model $entity, array &$data): void
+    public function afterInsert(Model $entity): void
     {
-        $this->hook(Model::HOOK_AFTER_INSERT, [$entity, $data]);
+        $this->hook(Model::HOOK_AFTER_INSERT, [$entity]);
     }
 
     public function beforeUpdate(Model $entity, array &$data): void
@@ -78,9 +78,9 @@ final class ModelHandler
         $this->hook(Model::HOOK_BEFORE_UPDATE, [$entity, $data]);
     }
 
-    public function afterUpdate(Model $entity, array &$data): void
+    public function afterUpdate(Model $entity): void
     {
-        $this->hook(Model::HOOK_AFTER_UPDATE, [$entity, $data]);
+        $this->hook(Model::HOOK_AFTER_UPDATE, [$entity]);
     }
 
     public function beforeDelete(Model $entity): void
