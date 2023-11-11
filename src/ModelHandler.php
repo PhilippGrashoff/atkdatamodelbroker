@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk\Handler;
+namespace PhilippR\Atk4\ModelHandler;
 
 use Atk4\Core\HookTrait;
 use Atk4\Data\Exception;
@@ -53,42 +53,42 @@ final class ModelHandler
         throw new Exception("Cannot unserialize singleton");
     }
 
-    public function handleModelBeforeSave(Model $entity): void
+    public function beforeSave(Model $entity, bool $isUpdate): void
     {
-        $this->hook(Model::HOOK_BEFORE_SAVE, [$entity]);
+        $this->hook(Model::HOOK_BEFORE_SAVE, [$entity, $isUpdate]);
     }
 
-    public function handleModelAfterSave(Model $entity): void
+    public function afterSave(Model $entity, bool $isUpdate): void
     {
-        $this->hook(Model::HOOK_AFTER_SAVE, [$entity]);
+        $this->hook(Model::HOOK_AFTER_SAVE, [$entity, $isUpdate]);
     }
 
-    public function handleModelBeforeInsert(Model $entity, array &$data): void
+    public function beforeInsert(Model $entity, array &$data): void
     {
         $this->hook(Model::HOOK_BEFORE_INSERT, [$entity, $data]);
     }
 
-    public function handleModelAfterInsert(Model $entity, array &$data): void
+    public function afterInsert(Model $entity, array &$data): void
     {
         $this->hook(Model::HOOK_AFTER_INSERT, [$entity, $data]);
     }
 
-    public function handleModelBeforeUpdate(Model $entity, array &$data): void
+    public function beforeUpdate(Model $entity, array &$data): void
     {
         $this->hook(Model::HOOK_BEFORE_UPDATE, [$entity, $data]);
     }
 
-    public function handleModelAfterUpdate(Model $entity, array &$data): void
+    public function afterUpdate(Model $entity, array &$data): void
     {
         $this->hook(Model::HOOK_AFTER_UPDATE, [$entity, $data]);
     }
 
-    public function handleModelBeforeDelete(Model $entity): void
+    public function beforeDelete(Model $entity): void
     {
         $this->hook(Model::HOOK_BEFORE_DELETE, [$entity]);
     }
 
-    public function handleModelAfterDelete(Model $entity): void
+    public function afterDelete(Model $entity): void
     {
         $this->hook(Model::HOOK_AFTER_DELETE, [$entity]);
     }
