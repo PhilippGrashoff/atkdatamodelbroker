@@ -5,6 +5,7 @@ namespace PhilippR\Atk4\ModelHandler\Tests;
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
+use PhilippR\Atk4\ModelHandler\Tests\Helpers\EvenSomeOtherController;
 use PhilippR\Atk4\ModelHandler\Tests\Helpers\SomeController;
 use PhilippR\Atk4\ModelHandler\Tests\Helpers\SomeOtherController;
 use PhilippR\Atk4\ModelHandler\Tests\Helpers\TestModel;
@@ -71,6 +72,23 @@ class ModelHandlerTest extends TestCase
     public function testInvokeAfterUpdate(): void
     {
         $this->_update(Model::HOOK_AFTER_UPDATE);
+    }
+
+    public function testMoreThanOneController(): void
+    {
+        EvenSomeOtherController::registerModelHandlerHooks();
+        $testModel = new TestModel($this->db);
+        $this->callProtected($testModel, 'invokeModelHandler', MODEL::HOOK_AFTER_SAVE);
+        $entity = $testModel->createEntity()->save();
+        self::assertSame(0, $_ENV['someCounter']);
+        self::assertSame(0, $_ENV['evenSomeOtherCounter']);
+        self::assertArrayNotHasKey('someOtherCounter', $_ENV);
+
+        $entity->set('name', 'SomeName');
+        $entity->save();
+        self::assertSame(1, $_ENV['someCounter']);
+        self::assertSame(1, $_ENV['evenSomeOtherCounter']);
+        self::assertArrayNotHasKey('someOtherCounter', $_ENV);
     }
 
     protected function _insert(string $hookSpot): void
