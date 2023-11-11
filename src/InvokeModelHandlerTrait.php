@@ -6,7 +6,7 @@ use Atk4\Data\Exception;
 use Atk4\Data\Model;
 
 /**
- * @extends <Model|Model>
+ * @extends Model<Model>
  */
 trait InvokeModelHandlerTrait
 {

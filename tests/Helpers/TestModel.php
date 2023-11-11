@@ -9,6 +9,8 @@ class TestModel extends Model
 {
     use InvokeModelHandlerTrait;
 
+    public $table = 'testmodel';
+
     protected function init(): void
     {
         parent::init();
