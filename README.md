@@ -71,3 +71,15 @@ public function save(array $data = [])
 }
 ```
 This way, the saving would be persisted even if some additional actions in the `afterSave()` would e.g. throw an Exception.
+
+## Installation
+The easiest way to use this repository is to add it to your composer.json in the 'require' section:
+```json
+{
+  "require": {
+    "philippgrashoff/handlerforatk": "5.0.*"
+  }
+}
+```
+## Versioning
+The version numbers of this repository correspond with the atk4\data versions. So 5.0.x is compatible with atk4\data 5.0.x and so on.
