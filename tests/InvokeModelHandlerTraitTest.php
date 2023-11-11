@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+namespace PhilippR\Atk4\ModelHandler\Tests;
 
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Sql;

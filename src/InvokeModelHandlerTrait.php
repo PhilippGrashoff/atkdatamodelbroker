@@ -10,7 +10,7 @@ use Atk4\Data\Model;
  */
 trait InvokeModelHandlerTrait
 {
-
+    /** @var String[] $invokedHookSpots */
     protected array $invokedHookSpots = [];
 
     protected function assertHookSpotNotInvoked(string $hookSpot): void
@@ -32,6 +32,7 @@ trait InvokeModelHandlerTrait
      * @param string $hookSpot
      * @return void
      * @throws Exception
+     * @throws \Atk4\Core\Exception
      */
     protected function invokeModelHandler(string $hookSpot): void
     {
@@ -44,7 +45,7 @@ trait InvokeModelHandlerTrait
             Model::HOOK_AFTER_UPDATE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_AFTER_UPDATE, 'afterUpdate'),
             Model::HOOK_BEFORE_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_BEFORE_DELETE, 'beforeDelete'),
             Model::HOOK_AFTER_DELETE => $this->invokeAfterInsertOrUpdateOrDelete(Model::HOOK_AFTER_DELETE, 'afterDelete'),
-            default => throw (new Exception('Unknown Hook spot'))->addMoreInfo('hook spotz', $hookSpot)
+            default => throw (new Exception('Unknown Hook spot'))->addMoreInfo('hook spot', $hookSpot)
         };
     }
 
