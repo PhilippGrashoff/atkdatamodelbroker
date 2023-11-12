@@ -53,48 +53,17 @@ final class ModelBroker
         throw new Exception("Cannot unserialize singleton");
     }
 
+    /**
+     * Subscribe to a hook spot. Call this function from any Class that should act upon an event like Model after insert.
+     * $fx receives the same parameters as the particular Model hook. So, If you subscribe to Model::HOOK_AFTER_SAVE,
+     * the $fx has the same 2 parameters as if adding a hook directly to this hook spot: the Model and $isUpdate
+     *
+     * @param string $hookSpot
+     * @param \Closure $fx
+     * @return void
+     */
     public function subscribe(string $hookSpot, \Closure $fx): void
     {
         $this->onHookShort($hookSpot, $fx);
-    }
-
-    public function beforeSave(Model $entity, bool $isUpdate): void
-    {
-        $this->hook(Model::HOOK_BEFORE_SAVE, [$entity, $isUpdate]);
-    }
-
-    public function afterSave(Model $entity, bool $isUpdate): void
-    {
-        $this->hook(Model::HOOK_AFTER_SAVE, [$entity, $isUpdate]);
-    }
-
-    public function beforeInsert(Model $entity, array &$data): void
-    {
-        $this->hook(Model::HOOK_BEFORE_INSERT, [$entity, $data]);
-    }
-
-    public function afterInsert(Model $entity): void
-    {
-        $this->hook(Model::HOOK_AFTER_INSERT, [$entity]);
-    }
-
-    public function beforeUpdate(Model $entity, array &$data): void
-    {
-        $this->hook(Model::HOOK_BEFORE_UPDATE, [$entity, $data]);
-    }
-
-    public function afterUpdate(Model $entity): void
-    {
-        $this->hook(Model::HOOK_AFTER_UPDATE, [$entity]);
-    }
-
-    public function beforeDelete(Model $entity): void
-    {
-        $this->hook(Model::HOOK_BEFORE_DELETE, [$entity]);
-    }
-
-    public function afterDelete(Model $entity): void
-    {
-        $this->hook(Model::HOOK_AFTER_DELETE, [$entity]);
     }
 }

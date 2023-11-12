@@ -1,4 +1,4 @@
-# handlerforatk
+# atkdatamodelbroker - a broker to subscribe to Model::save() hooks
 
 ## Why this repository?
 I need to handle quite some actions when models are saved. My code often looked like
@@ -18,36 +18,45 @@ There some points I really do not like about this:
 2) Meaning that the model handles control flow along other models. I like my Models rather "stupid", focussing on properties management, sensible helper functions and their relations to other models.
 3) As the model needs to call all actions that should happen after insert/update/delete, this also means that the code for these additional actions needs to be in the same repository. This is possibly leading to a huge monolith. I rather prefer splitting a bigger application into several repositories. This enforces good structuring and clear APIs.
    
-__This simple repo is there to change these downpoints__. It is an implementation for [atk4/data](https://github.com/atk4/data). This very nice framework does not implement a pattern like MVC but has very strong Models. However, the logic of this repo can be simply adapted. It is a mix of a Singleton (could also be done by DI) and Hook Pattern.
+__This simple repository is there to change these downpoints__. It is an implementation for [atk4/data](https://github.com/atk4/data). This very nice framework does not implement a pattern like MVC but has very strong Models. However, the logic of this repository can be simply adapted. It is a mix of a Singleton (could also be done by DI) and Hook Pattern.
 
 ## How this repository works
-The ModelHandler is something which acts a bit like a MQTT Broker: Models can "publish" events like `afterInsert`, `afterUpdate` or `afterDelete`. Other classes can "subscribe" to these events and act upon them. 
+The ModelBroker is something which acts a bit like a MQTT Broker: Models can "publish" events like `after insert`, `after update` or `after delete`. Other classes can "subscribe" to these events and act upon them. 
 The result is that:
-- The model itself does not need to have any knowledge about the additional actions that are performed after an event like `afterInsert`.
+- The model itself does not need to have any knowledge about the additional actions that are performed after an event like `after insert`.
 - The model itself does not handle the control flow for these additional actions.
 - As this is implemented using hooks, the additional actions can be added from outside the repository the Model is in.
 
-## How to use it
-Inside a model, you just have to invoke the ModelHandler, in this example for the `afterSave` event. This "publishes" the event to the ModelHandler:
-```php
-//inside Model::init()
-$this->onHook(
-     Model::HOOK_AFTER_SAVE,
-     function (self $tour, bool $isUpdate) {
-         ModelHandler::getInstance()->afterSave($tour, $isUpdate);
-     }
-);
-```
+There are 2 files in this repository which implement the logic:
+- `InvokeModelBrokerTrait`: A trait to be added to a `Model` which wants to publish an event
+- `ModelBroker`: The ModelBroker is called when the registered events. Other classes can subscribe to the broker to be called when these events happen.
 
-Any Class that wants to act on this `afterSave` can now add a hook to the ModelHandler. This is like "subscribing" to this event:
+
+## How to use it
+- `InvokeModelBrokerTrait::publish()` and `ModelBroker::subscribe()` are the only 2 methods you need!
+- Each `Model` can publish at any of the hook spots that are called within `Model::save()`.
+`InvokeModelBrokerTrait` needs to be added to a Model in order to do so. If so, you just have to call the `publish()` method and tell the method which hool spot to publish, e.g. `$this->publish(Model::HOOK_AFTER_SAVE)`.
+- Any other Class can now subscribe to any of the hook spots that were published by a model. To do so, they just need to call `ModelBroker::subscribe()` and tell this method to subscribe to which hook spot and what to do when this event happens.
+
 ```php
-//Inside some Controller class
-public static function registerModelHandlerHooks(): void
+//A model that publishes an event
+class SomeModel extends Model
 {
-    ModelHandler::getInstance()->onHook(
+    protected function init(): void 
+    {
+        $this->publish(Model::HOOK_AFTER_SAVE); //in here we only want to publish the after save spot
+    }
+    //other init() code like adding fields
+}
+
+//this Class wants to act to the after save event
+class SomeController 
+{
+    public static function registerModelBrokerHooks(): void {
+    ModelBroker::getInstance()->subscribe(
         Model::HOOK_AFTER_SAVE,
-        function (ModelHandler $modelHandler, Model $entity, bool $isUpdate) { //$modelHandler is added by atk4 HookTrait as first param
-            //some logic that should be performed when the afterSave event takes place
+        function (Model $entity, bool $isUpdate) { //the same parameters are available as on Model::HOOK_AFTER_SAVE hook spot
+            //some logic that should be performed when the after save event takes place
         }
     );
 );
@@ -55,23 +64,13 @@ public static function registerModelHandlerHooks(): void
 
 Of course, this means that all additional actions need to be registered before the Model save is executed. So, e.g. in `App::init()`, some code like this needs to be added:
 ```php
-SomeController::registerModelHandlerHooks();
-SomeOtherController::registerModelHandlerHooks();
-YetAnotherController::registerModelHandlerHooks();
+SomeController::registerModelBrokerHooks();
+SomeOtherController::registerModelBrokerHooks();
+YetAnotherController::registerModelBrokerHooks();
 ```
 
-## Coupling of Model and ModelHandler
-In the example here and in the tests, the ModelHandler is invoked in the hook spots of `Atk4\Data\Model::save()`. This means that all the additional actions will be inside the same transactions as the save() itself. Thus, if one of the additional actions fails, the complete save() is rolled back.
-
-If you want a looser coupling, you could extend `Model::save()` to something like:
-```php
-public function save(array $data = []) 
-{
-    parent::save($data);
-    ModelHandler::getInstance()->afterSave($this, $this->isLoaded());
-}
-```
-This way, the saving would be persisted even if some additional actions in the `afterSave()` would e.g. throw an Exception.
+## Coupling of Model and ModelBroker
+In the example here and in the tests, the ModelBroker is invoked in the hook spots of `Model::save()`. This means that all the additional actions will be inside the same transactions as the `save()` itself. Thus, if one of the additional actions fails, the complete `save()` is rolled back.
 
 ## Installation
 The easiest way to use this repository is to add it to your composer.json in the 'require' section:
