@@ -109,7 +109,7 @@ The easiest way to use this repository is to add it to your composer.json in the
 ```json
 {
   "require": {
-    "philippgrashoff/handlerforatk": "5.0.*"
+    "philippgrashoff/atkdatamodelbroker": "5.0.*"
   }
 }
 ```
