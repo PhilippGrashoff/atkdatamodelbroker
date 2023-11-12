@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler\Tests;
+namespace PhilippR\Atk4\ModelBroker\Tests;
 
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
-use PhilippR\Atk4\ModelHandler\Tests\Helpers\TestModel;
+use PhilippR\Atk4\ModelBroker\Tests\Helpers\TestModel;
 
-class InvokeModelHandlerTraitTest extends TestCase
+class InvokeModelBrokerTraitTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -19,15 +19,15 @@ class InvokeModelHandlerTraitTest extends TestCase
     public function testSameHookSpotCannotBeInvokedTwice(): void
     {
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', Model::HOOK_BEFORE_UPDATE);
-        self::expectExceptionMessage('The hook spot is already registered in ModelHandler');
-        $this->callProtected($testModel, 'invokeModelHandler', Model::HOOK_BEFORE_UPDATE);
+        $this->callProtected($testModel, 'publish', Model::HOOK_BEFORE_UPDATE);
+        self::expectExceptionMessage('The hook spot is already registered in ModelBroker');
+        $this->callProtected($testModel, 'publish', Model::HOOK_BEFORE_UPDATE);
     }
 
     public function testUnknownHookSpotThrowsException(): void
     {
         $testModel = new TestModel($this->db);
         self::expectExceptionMessage('Unknown Hook spot');
-        $this->callProtected($testModel, 'invokeModelHandler', 'someUnknownSpot');
+        $this->callProtected($testModel, 'publish', 'someUnknownSpot');
     }
 }

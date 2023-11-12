@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler\Tests\Helpers;
+namespace PhilippR\Atk4\ModelBroker\Tests\Helpers;
 
 
 use Atk4\Data\Model;
-use PhilippR\Atk4\ModelHandler\ModelHandler;
+use PhilippR\Atk4\ModelBroker\ModelBroker;
 
 class SomeOtherController
 {
@@ -17,32 +17,32 @@ class SomeOtherController
         }
     }
 
-    public static function registerModelHandlerHooks(): void
+    public static function registerModelBrokerHooks(): void
     {
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_BEFORE_INSERT,
-            function (ModelHandler $modelHandler, Model $entity, array &$data) {
+            function (Model $entity, array &$data) {
                 self::doSomething($entity);
             }
         );
 
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_AFTER_INSERT,
-            function (ModelHandler $modelHandler, Model $entity) {
+            function (Model $entity) {
                 self::doSomething($entity);
             }
         );
 
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_BEFORE_UPDATE,
-            function (ModelHandler $modelHandler, Model $entity, array &$data) {
+            function (Model $entity, array &$data) {
                 self::doSomething($entity);
             }
         );
 
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_AFTER_UPDATE,
-            function (ModelHandler $modelHandler, Model $entity) {
+            function (Model $entity) {
                 self::doSomething($entity);
             }
         );

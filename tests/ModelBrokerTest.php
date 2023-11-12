@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler\Tests;
+namespace PhilippR\Atk4\ModelBroker\Tests;
 
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
-use PhilippR\Atk4\ModelHandler\Tests\Helpers\EvenSomeOtherController;
-use PhilippR\Atk4\ModelHandler\Tests\Helpers\SomeController;
-use PhilippR\Atk4\ModelHandler\Tests\Helpers\SomeOtherController;
-use PhilippR\Atk4\ModelHandler\Tests\Helpers\TestModel;
+use PhilippR\Atk4\ModelBroker\Tests\Helpers\EvenSomeOtherController;
+use PhilippR\Atk4\ModelBroker\Tests\Helpers\SomeController;
+use PhilippR\Atk4\ModelBroker\Tests\Helpers\SomeOtherController;
+use PhilippR\Atk4\ModelBroker\Tests\Helpers\TestModel;
 
-class ModelHandlerTest extends TestCase
+class ModelBrokerTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        SomeController::registerModelHandlerHooks();
-        SomeOtherController::registerModelHandlerHooks();
+        SomeController::registerModelBrokerHooks();
+        SomeOtherController::registerModelBrokerHooks();
     }
 
     protected function setUp(): void
@@ -76,9 +76,9 @@ class ModelHandlerTest extends TestCase
 
     public function testMoreThanOneController(): void
     {
-        EvenSomeOtherController::registerModelHandlerHooks();
+        EvenSomeOtherController::registerModelBrokerHooks();
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', MODEL::HOOK_AFTER_SAVE);
+        $this->callProtected($testModel, 'publish', MODEL::HOOK_AFTER_SAVE);
         $entity = $testModel->createEntity()->save();
         self::assertSame(0, $_ENV['someCounter']);
         self::assertSame(0, $_ENV['evenSomeOtherCounter']);
@@ -94,7 +94,7 @@ class ModelHandlerTest extends TestCase
     protected function _insert(string $hookSpot): void
     {
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', $hookSpot);
+        $this->callProtected($testModel, 'publish', $hookSpot);
         $entity = $testModel->createEntity()->save();
         self::assertArrayNotHasKey('someCounter', $_ENV);
         self::assertSame(0, $_ENV['someOtherCounter']);
@@ -109,7 +109,7 @@ class ModelHandlerTest extends TestCase
     protected function _update(string $hookSpot): void
     {
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', $hookSpot);
+        $this->callProtected($testModel, 'publish', $hookSpot);
         $entity = $testModel->createEntity()->save();
         //update should not be triggered yet
         self::assertArrayNotHasKey('someCounter', $_ENV);
@@ -129,7 +129,7 @@ class ModelHandlerTest extends TestCase
     protected function _save(string $hookSpot): void
     {
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', $hookSpot);
+        $this->callProtected($testModel, 'publish', $hookSpot);
         $entity = $testModel->createEntity()->save();
         self::assertSame(0, $_ENV['someCounter']);
         self::assertArrayNotHasKey('someOtherCounter', $_ENV);
@@ -143,7 +143,7 @@ class ModelHandlerTest extends TestCase
     protected function _delete(string $hookSpot): void
     {
         $testModel = new TestModel($this->db);
-        $this->callProtected($testModel, 'invokeModelHandler', $hookSpot);
+        $this->callProtected($testModel, 'publish', $hookSpot);
         $entity = $testModel->createEntity()->save();
         self::assertArrayNotHasKey('someCounter', $_ENV);
         self::assertArrayNotHasKey('someOtherCounter', $_ENV);

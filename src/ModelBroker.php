@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler;
+namespace PhilippR\Atk4\ModelBroker;
 
 use Atk4\Core\HookTrait;
 use Atk4\Data\Exception;
@@ -11,17 +11,17 @@ use Atk4\Data\Model;
  * Singleton Pattern implementation taken from
  * https://github.com/DesignPatternsPHP/DesignPatternsPHP/blob/main/Creational/Singleton/Singleton.php
  */
-final class ModelHandler
+final class ModelBroker
 {
 
     use HookTrait;
 
-    private static ?ModelHandler $instance = null;
+    private static ?ModelBroker $instance = null;
 
     /**
      * gets the instance via lazy initialization (created on first usage)
      */
-    public static function getInstance(): ModelHandler
+    public static function getInstance(): ModelBroker
     {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -51,6 +51,11 @@ final class ModelHandler
     public function __wakeup()
     {
         throw new Exception("Cannot unserialize singleton");
+    }
+
+    public function subscribe(string $hookSpot, \Closure $fx): void
+    {
+        $this->onHookShort($hookSpot, $fx);
     }
 
     public function beforeSave(Model $entity, bool $isUpdate): void

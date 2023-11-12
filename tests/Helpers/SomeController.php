@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler\Tests\Helpers;
+namespace PhilippR\Atk4\ModelBroker\Tests\Helpers;
 
 use Atk4\Data\Model;
-use PhilippR\Atk4\ModelHandler\ModelHandler;
+use PhilippR\Atk4\ModelBroker\ModelBroker;
 
 class SomeController
 {
@@ -16,29 +16,29 @@ class SomeController
         }
     }
 
-    public static function registerModelHandlerHooks(): void
+    public static function registerModelBrokerHooks(): void
     {
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_BEFORE_SAVE,
-            function (ModelHandler $modelHandler, Model $entity, bool $isUpdate) {
+            function (Model $entity, bool $isUpdate) {
                 self::doSomething($entity);
             }
         );
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_AFTER_SAVE,
-            function (ModelHandler $modelHandler, Model $entity, bool $isUpdate) {
+            function (Model $entity, bool $isUpdate) {
                 self::doSomething($entity);
             }
         );
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_BEFORE_DELETE,
-            function (ModelHandler $modelHandler, Model $entity) {
+            function (Model $entity) {
                 self::doSomething($entity);
             }
         );
-        ModelHandler::getInstance()->onHook(
+        ModelBroker::getInstance()->subscribe(
             Model::HOOK_AFTER_DELETE,
-            function (ModelHandler $modelHandler, Model $entity) {
+            function (Model $entity) {
                 self::doSomething($entity);
             }
         );

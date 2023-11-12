@@ -1,5 +1,5 @@
 {
-  "name": "philippgrashoff/handlerforatk",
+  "name": "philippgrashoff/atkdatamodelbroker",
   "description": "",
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -13,12 +13,12 @@
   },
   "autoload": {
     "psr-4": {
-      "PhilippR\\Atk4\\ModelHandler\\": "src"
+      "PhilippR\\Atk4\\ModelBroker\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "PhilippR\\Atk4\\ModelHandler\\Tests\\": "tests"
+      "PhilippR\\Atk4\\ModelBroker\\Tests\\": "tests"
     }
   }
 }

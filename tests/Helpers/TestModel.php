@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace PhilippR\Atk4\ModelHandler\Tests\Helpers;
+namespace PhilippR\Atk4\ModelBroker\Tests\Helpers;
 
 use Atk4\Data\Model;
-use PhilippR\Atk4\ModelHandler\InvokeModelHandlerTrait;
+use PhilippR\Atk4\ModelBroker\InvokeModelBrokerTrait;
 
 class TestModel extends Model
 {
-    use InvokeModelHandlerTrait;
+    use InvokeModelBrokerTrait;
 
     public $table = 'testmodel';
 
