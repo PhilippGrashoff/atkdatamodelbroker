@@ -34,9 +34,9 @@ There are 2 files in this repository which implement the logic:
 
 ## How to use it
 - `InvokeModelBrokerTrait::publish()` and `ModelBroker::subscribe()` are the only 2 methods you need!
-- Each `Model` can publish at any of the hook spots that are called within `Model::save()`.
+- Each `Model` can publish at any of the events(hook spots) that are called within `Model::save()`.
 `InvokeModelBrokerTrait` needs to be added to a Model in order to do so. If so, you just have to call the `publish()` method and tell the method which hool spot to publish, e.g. `$this->publish(Model::HOOK_AFTER_SAVE)`.
-- Any other Class can now subscribe to any of the hook spots that were published by a model. To do so, they just need to call `ModelBroker::subscribe()` and tell this method to subscribe to which hook spot and what to do when this event happens.
+- Any other Class can now subscribe to any of the events that were published by a model. To do so, they just need to call `ModelBroker::subscribe()` and tell this method to subscribe to which event and what to do when this event happens.
 
 ```php
 //A model that publishes an event
@@ -53,12 +53,13 @@ class SomeModel extends Model
 class SomeController 
 {
     public static function registerModelBrokerHooks(): void {
-    ModelBroker::getInstance()->subscribe(
-        Model::HOOK_AFTER_SAVE,
-        function (Model $entity, bool $isUpdate) { //the same parameters are available as on Model::HOOK_AFTER_SAVE hook spot
-            //some logic that should be performed when the after save event takes place
-        }
-    );
+        ModelBroker::getInstance()->subscribe(
+            Model::HOOK_AFTER_SAVE,
+            function (Model $entity, bool $isUpdate) { //the same parameters are available as on Model::HOOK_AFTER_SAVE hook spot
+                //some logic that should be performed when the after save event takes place
+            }
+        );
+    }
 );
 ```
 
@@ -68,9 +69,40 @@ SomeController::registerModelBrokerHooks();
 SomeOtherController::registerModelBrokerHooks();
 YetAnotherController::registerModelBrokerHooks();
 ```
-
 ## Coupling of Model and ModelBroker
-In the example here and in the tests, the ModelBroker is invoked in the hook spots of `Model::save()`. This means that all the additional actions will be inside the same transactions as the `save()` itself. Thus, if one of the additional actions fails, the complete `save()` is rolled back.
+The ModelBroker is invoked in the hook spots of `Model::save()`. This means that all the additional actions will be inside the same transactions as the `save()` itself. Thus, if one of the additional actions fails, the complete `save()` is rolled back.
+
+## Several Models publishing the same event
+If several models `publish()` the same event, any subscriber will receive this event from all these models.
+```php
+class ModelA extends Model 
+{
+    protected function init(): void 
+    {
+        $this->publish(Model::HOOK_AFTER_SAVE);
+    }
+}
+
+class ModelB extends Model 
+{
+    protected function init(): void 
+    {
+        $this->publish(Model::HOOK_AFTER_SAVE);
+    }
+}
+
+//inside some other class. This subscription will receive the after save event from both ModelA and ModelB.
+ModelBroker::getInstance()->subscribe(
+    Model::HOOK_AFTER_SAVE,
+    function (Model $entity, bool $isUpdate) {
+        //only act on ModelA
+        if($entity instanceof ModelA) {
+               //do something
+        }
+    }
+);
+```
+Maybe in the future, the possibility to filter directly within `subscribe()` might be added.
 
 ## Installation
 The easiest way to use this repository is to add it to your composer.json in the 'require' section:
@@ -81,5 +113,6 @@ The easiest way to use this repository is to add it to your composer.json in the
   }
 }
 ```
+
 ## Versioning
 The version numbers of this repository correspond with the atk4\data versions. So 5.0.x is compatible with atk4\data 5.0.x and so on.
