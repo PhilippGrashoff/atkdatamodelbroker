@@ -42,6 +42,8 @@ There are 2 files in this repository which implement the logic:
 //A model that publishes an event
 class SomeModel extends Model
 {
+    use InvokeModelBrokerTrait;
+     
     protected function init(): void 
     {
         $this->publish(Model::HOOK_AFTER_SAVE); //in here we only want to publish the after save spot
@@ -77,6 +79,8 @@ If several models `publish()` the same event, any subscriber will receive this e
 ```php
 class ModelA extends Model 
 {
+    use InvokeModelBrokerTrait;
+    
     protected function init(): void 
     {
         $this->publish(Model::HOOK_AFTER_SAVE);
@@ -85,6 +89,8 @@ class ModelA extends Model
 
 class ModelB extends Model 
 {
+    use InvokeModelBrokerTrait;
+    
     protected function init(): void 
     {
         $this->publish(Model::HOOK_AFTER_SAVE);
